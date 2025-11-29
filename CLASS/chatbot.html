@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Aditya's AI Assistant</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+/* General Reset & Body */
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(to right bottom, #ece5dd, #e0e0e0); /* Softer light mode background */
+    display: flex;
+    justify-content: center;
+    align-items: center; /* Center vertically too */
+    min-height: 100vh; /* Full viewport height */
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+    transition: background 0.3s ease; /* Smooth transition for dark mode */
+}
+
+/* Dark Mode Body */
+body.dark-mode {
+    background: linear-gradient(to right bottom, #2c3e50, #1a242f); /* Dark mode background */
+}
+
+/* Chat Container */
+#chat {
+    width: 100%;
+    max-width: 450px; /* Slightly wider for better readability */
+    background: white; /* Light mode default */
+    border-radius: 20px; /* More rounded corners */
+    display: flex;
+    flex-direction: column;
+    height: 700px; /* Taller chat window */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15); /* More prominent shadow */
+    overflow: hidden; /* Ensure rounded corners are respected */
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+body.dark-mode #chat {
+    background: #36454F; /* Dark mode chat background */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+/* Header */
+#header {
+    background: #075e54; /* WhatsApp green */
+    color: white;
+    padding: 15px 20px;
+    font-size: 20px;
+    font-weight: 600; /* Slightly bolder */
+    border-radius: 20px 20px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: background 0.3s ease;
+}
+body.dark-mode #header {
+    background: #1a242f; /* Darker header for dark mode */
+}
+#header span { /* For the robot icon */
+    margin-right: 10px;
+}
+
+/* Menu Button */
+#menu {
+    cursor: pointer;
+    font-size: 24px; /* Larger icon */
+    line-height: 1; /* Align vertically */
+}
+
+/* Menu Content */
+.menu-content {
+    display: none;
+    position: absolute;
+    background: white; /* Light mode default */
+    border: 1px solid #ddd; /* Light mode default */
+    border-radius: 8px; /* Rounded menu corners */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    top: 60px; /* Adjust position */
+    right: 20px;
+    z-index: 10;
+    overflow: hidden; /* For rounded corners */
+    transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+body.dark-mode .menu-content {
+    background: #4a5d73; /* Dark mode menu background */
+    border-color: #5d738f;
+}
+.menu-content div {
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 15px;
+    color: #333; /* Light mode default */
+    white-space: nowrap; /* Prevent wrapping */
+    transition: background 0.3s ease, color 0.3s ease;
+}
+body.dark-mode .menu-content div {
+    color: #e0e0e0; /* Dark mode menu text */
+}
+.menu-content div:hover {
+    background: #f0f0f0; /* Light mode hover */
+}
+body.dark-mode .menu-content div:hover {
+    background: #5d738f; /* Dark mode hover */
+}
+
+/* Messages Area */
+#messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px; /* More padding */
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Space between messages */
+    background: #e5ddd5; /* Lighter chat background */
+    transition: background 0.3s ease;
+}
+body.dark-mode #messages {
+    background: #2f4f4f; /* Dark mode messages area background */
+}
+
+/* Scrollbar Styling */
+#messages::-webkit-scrollbar {
+    width: 8px;
+}
+#messages::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Light mode */
+}
+body.dark-mode #messages::-webkit-scrollbar-track {
+    background: #4a5d73; /* Dark mode */
+}
+#messages::-webkit-scrollbar-thumb {
+    background: #888; /* Light mode */
+    border-radius: 4px;
+}
+body.dark-mode #messages::-webkit-scrollbar-thumb {
+    background: #8f9ea9; /* Dark mode */
+}
+#messages::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Light mode */
+}
+body.dark-mode #messages::-webkit-scrollbar-thumb:hover {
+    background: #a9bac7; /* Dark mode */
+}
+
+/* Individual Message Bubble */
+.message {
+    padding: 12px 15px; /* Increased padding */
+    margin: 3px 0;
+    border-radius: 15px; /* Smoother bubbles */
+    max-width: 80%; /* Wider messages */
+    position: relative;
+    animation: fadeIn 0.4s ease-out; /* Slower, smoother animation */
+    word-wrap: break-word; /* Ensure long words break */
+    transition: background 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
+}
+.user {
+    background: #dcf8c6; /* Lighter green for user */
+    align-self: flex-end;
+    border-bottom-right-radius: 2px; /* Pointy corner for user */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    color: #333; /* Default text color */
+}
+body.dark-mode .user {
+    background: #005c4b; /* Darker green for user in dark mode */
+    color: #e0e0e0;
+}
+.bot {
+    background: #ffffff; /* White for bot */
+    align-self: flex-start;
+    border-bottom-left-radius: 2px; /* Pointy corner for bot */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    color: #333; /* Default text color */
+}
+body.dark-mode .bot {
+    background: #4a5d73; /* Darker grey for bot in dark mode */
+    color: #e0e0e0;
+}
+
+/* Reactions container - REMOVED */
+
+/* Reply & Options Buttons Container */
+.options-container {
+    display: flex;
+    justify-content: flex-end; /* Always align right for user messages */
+    margin-top: 5px;
+    gap: 10px;
+    opacity: 0; /* Hidden by default */
+    visibility: hidden; /* Hidden by default */
+    transition: opacity 0.2s ease, visibility 0.2s ease; /* Smooth transition */
+}
+.bot .options-container {
+    justify-content: flex-start; /* Align to the left for bot messages */
+}
+
+/* Show options on message hover */
+.message:hover .options-container {
+    opacity: 1;
+    visibility: visible;
+}
+
+.reply-btn { /* Removed .more-options-btn */
+    font-size: 13px;
+    color: #555; /* Light mode default */
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 5px 8px;
+    border-radius: 5px;
+    transition: background 0.2s ease, color 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+body.dark-mode .reply-btn {
+    color: #c0c0c0; /* Dark mode reply button text */
+}
+.reply-btn:hover {
+    background: rgba(0,0,0,0.05); /* Light mode hover */
+}
+body.dark-mode .reply-btn:hover {
+    background: rgba(255,255,255,0.1); /* Dark mode hover */
+}
+.reply-btn .material-icons {
+    font-size: 18px;
+}
+
+/* Reply Indicator */
+.reply-text {
+    font-size: 12px;
+    color: #777; /* Light mode default */
+    margin-bottom: 5px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid rgba(0,0,0,0.1); /* Subtle separator */
+    font-style: italic;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Truncate long reply texts */
+    transition: color 0.3s ease, border-color 0.3s ease;
+}
+body.dark-mode .reply-text {
+    color: #a0a0a0; /* Dark mode reply text */
+    border-color: rgba(255,255,255,0.15);
+}
+
+/* Input Area */
+#inputArea {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    border-top: 1px solid #eee; /* Light mode default */
+    background: #f8f8f8; /* Slightly different background for input */
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+    transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+body.dark-mode #inputArea {
+    background: #36454F; /* Dark mode input area */
+    border-color: #4a5d73;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+}
+
+/* User Input Field */
+#userInput {
+    flex: 1;
+    padding: 12px 15px;
+    border: 1px solid #ddd; /* Light mode default */
+    border-radius: 25px; /* Pill-shaped input */
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease, color 0.3s ease;
+    margin-right: 10px;
+    background: white; /* Light mode default */
+    color: #333;
+}
+body.dark-mode #userInput {
+    background: #4a5d73; /* Dark mode input field */
+    border-color: #5d738f;
+    color: #e0e0e0;
+}
+#userInput:focus {
+    border-color: #128c7e; /* Focus color same for both modes */
+    box-shadow: 0 0 0 3px rgba(18, 140, 126, 0.2);
+}
+body.dark-mode #userInput:focus {
+    box-shadow: 0 0 0 3px rgba(18, 140, 126, 0.4);
+}
+#userInput::placeholder { /* Placeholder text color */
+    color: #999;
+}
+body.dark-mode #userInput::placeholder {
+    color: #a0a0a0;
+}
+
+/* Send Button */
+#inputArea button {
+    padding: 12px 20px;
+    background: #128c7e; /* WhatsApp green */
+    color: white;
+    border: none;
+    border-radius: 25px; /* Pill-shaped button */
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+#inputArea button:hover {
+    background: #075e54;
+    transform: translateY(-1px); /* Slight lift on hover */
+}
+#inputArea button:active {
+    transform: translateY(0); /* Press effect */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+/* Reply Preview */
+#replyPreview {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f0f0f0; /* Light mode default */
+    padding: 8px 15px;
+    border-top: 1px solid #e0e0e0; /* Light mode default */
+    font-size: 14px;
+    color: #555; /* Light mode default */
+    animation: slideUp 0.3s ease-out;
+    border-radius: 0 0 10px 10px; /* Rounded bottom if no input area */
+    transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+body.dark-mode #replyPreview {
+    background: #4a5d73; /* Dark mode reply preview */
+    border-color: #5d738f;
+    color: #e0e0e0;
+}
+#replyPreview.hidden {
+    display: none;
+}
+#replyPreview span {
+    font-style: italic;
+    max-width: calc(100% - 30px);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+#replyPreview .material-icons {
+    cursor: pointer;
+    font-size: 20px;
+    color: #888; /* Light mode default */
+    transition: color 0.3s ease;
+}
+body.dark-mode #replyPreview .material-icons {
+    color: #c0c0c0; /* Dark mode close icon */
+}
+#replyPreview .material-icons:hover {
+    color: #333; /* Light mode hover */
+}
+body.dark-mode #replyPreview .material-icons:hover {
+    color: #e0e0e0; /* Dark mode hover */
+}
+
+
+/* Typing Indicator */
+.typing {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: grey; /* Light mode default */
+    padding: 5px 15px;
+    margin: 5px 0;
+    background: #ffffff; /* Same as bot message */
+    border-radius: 15px 15px 15px 2px;
+    align-self: flex-start;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    animation: fadeIn 0.3s;
+    transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+body.dark-mode .typing {
+    background: #4a5d73; /* Dark mode typing bubble */
+    color: #e0e0e0;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+.typing span {
+    width: 6px;
+    height: 6px;
+    background: grey; /* Light mode default */
+    border-radius: 50%;
+    margin: 0 2px;
+    animation: blink 1s infinite;
+}
+body.dark-mode .typing span {
+    background: #e0e0e0; /* Dark mode typing dots */
+}
+.typing span:nth-child(2) { animation-delay: 0.2s; }
+.typing span:nth-child(3) { animation-delay: 0.4s; }
+
+/* Keyframe Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes blink {
+    0%, 80%, 100% { opacity: 0; }
+    40% { opacity: 1; }
+}
+@keyframes slideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+</style>
+</head>
+<body>
+
+<div id="chat">
+  <div id="header">
+    <span class="material-icons">chat_bubble_outline</span> Aditya's AI Assistant
+    <div id="menu">
+        <span class="material-icons">menu</span>
+      <div class="menu-content" id="menuContent">
+        <div onclick="clearChat()">Clear Chat</div>
+        <div onclick="toggleDarkMode()">Toggle Dark Mode</div>
+      </div>
+    </div>
+  </div>
+  <div id="messages"></div>
+
+  <!-- Reply Preview Area -->
+  <div id="replyPreview" class="hidden">
+    <span></span>
+    <span class="material-icons" onclick="cancelReply()">close</span>
+  </div>
+
+  <div id="inputArea">
+    <input id="userInput" placeholder="Type a message..." />
+    <button onclick="sendMessage()">Send</button>
+  </div>
+</div>
+
+<script>
+let conversation = JSON.parse(localStorage.getItem("conversation") || "[]");
+let replyToMessageId = null; // Store the ID of the message being replied to
+let messageCounter = 0; // Unique ID for each message
+
+const messagesContainer = document.getElementById("messages");
+const userInput = document.getElementById("userInput");
+const menuContent = document.getElementById("menuContent");
+const replyPreview = document.getElementById("replyPreview");
+const replyPreviewText = replyPreview.querySelector("span");
+const body = document.body;
+
+// Check for dark mode preference in local storage on load
+document.addEventListener("DOMContentLoaded", () => {
+    if (localStorage.getItem("darkMode") === "enabled") {
+        body.classList.add("dark-mode");
+    }
+    renderMessages();
+});
+
+
+document.getElementById("menu").addEventListener("click", (event) => {
+    menuContent.style.display = menuContent.style.display === "block" ? "none" : "block";
+    event.stopPropagation(); // Prevent document click from closing it immediately
+});
+
+// Close menu when clicking outside
+document.addEventListener("click", (event) => {
+    if (!menuContent.contains(event.target) && event.target.id !== "menu") {
+        menuContent.style.display = "none";
+    }
+});
+
+// Render all messages from conversation history
+function renderMessages() {
+    messagesContainer.innerHTML = "";
+    conversation.forEach((msg) => {
+        // Ensure old messages without 'id' get one for consistency
+        if (msg.id === undefined) {
+            msg.id = messageCounter++;
+        } else if (msg.id >= messageCounter) {
+            messageCounter = msg.id + 1; // Keep counter ahead of existing IDs
+        }
+        addMessageToDOM(msg, false);
+    });
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    // Update local storage in case IDs were added/updated
+    localStorage.setItem("conversation", JSON.stringify(conversation));
+}
+
+// Add a single message to the DOM
+function addMessageToDOM(msg, save=true) {
+    const div = document.createElement("div");
+    div.classList.add("message", msg.sender);
+    div.dataset.messageId = msg.id; // Store unique ID
+
+    if (msg.replyTo !== null && msg.replyTo !== undefined) {
+        const replyDiv = document.createElement("div");
+        replyDiv.classList.add("reply-text");
+        // Find the original message text if possible, otherwise use a placeholder
+        const originalMsg = conversation.find(m => m.id === msg.replyTo);
+        replyDiv.innerText = "Replying to: " + (originalMsg ? originalMsg.text : "Original message");
+        div.appendChild(replyDiv);
+    }
+
+    const msgText = document.createElement("span");
+    msgText.innerHTML = msg.text;
+    div.appendChild(msgText);
+
+    // Reply button only (Reactions and More Options removed)
+    const optionsContainer = document.createElement("div");
+    optionsContainer.classList.add("options-container");
+
+    const replyBtn = document.createElement("button");
+    replyBtn.classList.add("reply-btn");
+    replyBtn.innerHTML = '<span class="material-icons">reply</span> Reply';
+    replyBtn.onclick = () => startReply(msg.id, msg.text);
+    optionsContainer.appendChild(replyBtn);
+
+    div.appendChild(optionsContainer);
+
+    messagesContainer.appendChild(div);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+    if (save) {
+        conversation.push(msg);
+        localStorage.setItem("conversation", JSON.stringify(conversation));
+    }
+}
+
+// Start reply mode
+function startReply(messageId, messageText) {
+    replyToMessageId = messageId;
+    replyPreviewText.innerText = "Replying to: " + messageText;
+    replyPreview.classList.remove("hidden");
+    userInput.focus();
+}
+
+// Cancel reply mode
+function cancelReply() {
+    replyToMessageId = null;
+    replyPreview.classList.add("hidden");
+    userInput.placeholder = "Type a message...";
+}
+
+// Add typing indicator
+function addTyping() {
+    const div = document.createElement("div");
+    div.classList.add("message", "bot");
+    div.id = "typing-indicator";
+    div.innerHTML = `<div class="typing"><span></span><span></span><span></span></div>`;
+    messagesContainer.appendChild(div);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+// Remove typing indicator
+function removeTyping() {
+    const typing = document.getElementById("typing-indicator");
+    if (typing) typing.remove();
+}
+
+// Clear chat history
+function clearChat() {
+    conversation = [];
+    localStorage.removeItem("conversation");
+    renderMessages();
+    cancelReply(); // Also clear reply preview
+    menuContent.style.display = "none";
+}
+
+// Toggle Dark Mode
+function toggleDarkMode() {
+    body.classList.toggle("dark-mode");
+    if (body.classList.contains("dark-mode")) {
+        localStorage.setItem("darkMode", "enabled");
+    } else {
+        localStorage.setItem("darkMode", "disabled");
+    }
+    menuContent.style.display = "none";
+}
+
+
+// Send message function
+async function sendMessage() {
+    const text = userInput.value.trim();
+    if (!text) return;
+
+    // Assign a unique ID to the user message
+    const userMessage = {
+        id: messageCounter++,
+        text: text,
+        sender: "user",
+        replyTo: replyToMessageId, // Will be null if not a reply
+    };
+    addMessageToDOM(userMessage);
+
+    userInput.value = "";
+    cancelReply(); // Clear reply preview after sending
+
+    addTyping();
+
+    try {
+        // Prepare messages for API call
+        const apiMessages = conversation.map(m => ({
+            role: m.sender === "user" ? "user" : "assistant",
+            content: m.text
+        }));
+
+        const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Authorization": "Bearer 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", // Replace with your actual key if different
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                model: "deepseek/deepseek-chat-v3.1:free", // Ensure this is the correct model
+                messages: apiMessages
+            })
+        });
+
+        const data = await res.json();
+        removeTyping();
+
+        let botMsgText = data.choices?.[0]?.message?.content || "Sorry, I didn't get that.";
+        const botMessage = {
+            id: messageCounter++, // Assign unique ID to bot message
+            text: botMsgText,
+            sender: "bot",
+            replyTo: null // Bot replies don't typically reply to themselves
+        };
+        addMessageToDOM(botMessage);
+
+    } catch (err) {
+        removeTyping();
+        const errorMessage = {
+            id: messageCounter++,
+            text: "Error: " + err.message,
+            sender: "bot",
+            replyTo: null
+        };
+        addMessageToDOM(errorMessage);
+        console.error("API Error:", err);
+    }
+}
+</script>
+
+</body>
+</html>

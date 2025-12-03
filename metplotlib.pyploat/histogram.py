@@ -1,7 +1,0 @@
-import matplotlib.pyplot as plt
-
-bunch = [10, 20, 30,40,50,60]   # ascending order
-x = [11,22,33,44,55,66]
-
-plt.hist(x, bins=bunch, color='red')
-plt.show()

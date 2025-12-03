@@ -1,0 +1,270 @@
+#is an open source library built on top of numpy and used to manipulate data .
+#it introduces data structure like DateFrame and Series that make working with structured data more efficient .
+import pandas as pd
+import numpy as np
+
+#creating a pandas series from a list
+data=[1,2,3,4,5]
+series = pd.Series(data)
+
+#creating a pandas series with specific index
+index = ['a','b','c','d','e']
+series_with_index= pd.Series(data,index=index)
+
+#creating a pandas series from dictionaries
+data_dic={'a':1,'b':2,'c':3,'d':4}
+series_from_dict=pd.Series(data_dic)
+
+#accessing data in a series
+print(series[2])      #accessing element at index 2
+print(series_with_index['b'])  #accessing element with index b
+
+#return 1st n rows
+first_n_rows=series.head(3)
+print(first_n_rows)
+
+#retuen last n rows
+last_n_rows=series.tail(3)
+print(first_n_rows)
+
+# return dimension (rows , column)
+dimension=series.shape
+print(dimension)
+
+# generate descriptive statistics
+stats=series.describe()
+print(stats)
+
+# return unique value
+unique_values=series.unique()
+print(unique_values)
+
+#Operations and Transformation in Pandas series
+#element wise addition
+result = series + series_with_index
+print(result)
+
+#apply a function
+squared_series = series.apply(lambda x: x ** 2)
+print(squared_series)
+
+#map values using dictionaries
+mapped_series = series.map({1:'one',2:'two',3:'three'})
+print(mapped_series)
+
+#sort the series by value
+sorted_series = series.sort_values()
+print(sorted_series)
+
+#check for missing value
+missing_values=series.isnull()
+print(missing_values)
+
+#fill missing values with a specified value
+filled_series=series.fillna(0)
+print(filled_series)
+
+
+#12.11.2025
+#create a pandas querying series
+data = {'a':10,'b':20,'c':30,'d':40,'e':50}
+series = pd.Series(data)
+print(series)
+
+#select elements greater than 30
+selected_greater_than_30 = series[series>30]
+print("\nSelected_greater_than_30:\n", selected_greater_than_30)
+
+#select elements equal to 20
+selected_equal_to_20 = series[series==20]
+print("\nSelected_equal_to_20:\n", selected_equal_to_20)
+
+#select elements not equal to 40
+selected_not_equal_to_40 = series[series!=40]
+print("\nSelected_not_equal_to_40:\n", selected_not_equal_to_40)
+
+#select elements less than 30
+selected_less_than_30 = series[series<30]
+print("\nSelected_less_than_30:\n", selected_less_than_30)
+
+#select elements based on multiple conditions
+selected_multiple_conditions = series[(series>20) & (series<50)]
+print("\nSelected_multiple_conditions:\n", selected_multiple_conditions)
+
+#select elements based on list of values
+selected_by_list = series[series.isin([20,40,60,80,100])]
+print("\nSelected_by_list:\n", selected_by_list)
+
+#select elements using string methods(if applicable)
+string_series = pd.Series(['apple','banana','cherry','date','elderberry'])
+selected_by_string_method = string_series.str.startswith('b')
+print("\nselected by string method")
+print(selected_by_string_method)
+selected_by_string_method1 = string_series[string_series.str.startswith('b')]
+print("\nselected by string method1")
+print(selected_by_string_method1)
+
+#Query based on index labels
+#loc (Label-based indexing)
+#selects data by labels (names) of rows and columns
+selected_by_index_labels = series.loc[['a','b','c']]
+print("\nSelected_by_index_labels:\n", selected_by_index_labels)
+
+#Query based on numeric positions
+#iloc (Integer-Location-based indexing)
+#Selects data by integer positions of rows and columns
+selected_by_numeric_positions = series.iloc[1:4]
+print("\nSelected_by_numeric_positions:\n", selected_by_numeric_positions)
+
+# Creating a DataFrame from a dictionary
+data_dict = {'Name': ['Richa', 'Jemimah', 'Amanjot'],
+             'Age': [19,35,22],
+             'Salary': [50000, 60000, 45000]}
+df_dict = pd.DataFrame(data_dict)
+print(df_dict)
+
+#Creating a DataFrame from Lists
+data_list = [['Harman', 25, 50000],['Kriti',26, 60000], ['Shruti', 20, 70000]]
+
+#defining column names
+columns = ['Name', 'Age', 'Salary']
+
+df_list = pd.DataFrame(data_list, columns=columns)
+print(df_list)
+print(df_list['Name'])
+print(df_list['Age'])
+print(df_list['Salary'])
+
+data_array = np.array([['Pratik', 25, 50000], ['Shradha', 24, 60000], ['Gautami',20, 70000]])
+df_array = pd.DataFrame(data_array, columns=columns)
+print(df_array)
+
+#creating a DataFrame from a CSV file
+#df_csv = pd.read_csv('HousePrices.csv')
+#print(df_csv)
+
+#Creating a sample DataFrame
+data = {'Column_name': [5,15,8],
+        'Column1': [10,20,30],
+        'Column2': [20,40,60],
+        'Another_column': [25,35,45]}
+df = pd.DataFrame(data)
+
+#Accessing a single column
+column_data = df['Column_name']
+print("Single column: ")
+print(column_data)
+
+#Accessing multiple columns
+selected_columns = df[['Column1', 'Column2']]
+print("Multiple columns: ")
+print(selected_columns)
+
+#Accessing a specific row by index
+row_data = df.iloc[0]
+print("\nSpecific row: ")
+print(row_data)
+
+#Accessing rows based on a condition
+filtered_rows = df[df['Column_name'] > 10]
+print("\nFiltered rows: ")
+print(filtered_rows)
+
+#Accessing a single cell by label
+value = df.at[0,'Column_name']
+print("\nSingle cell by label:")
+print(value)
+
+#Accessing a single cell by position
+value = df.iat[0,1]   #Row0, Column1
+print("\nSingle cells by label:")
+print(value)
+
+selected_data= df.loc[0, 'Column_name']
+print("\nData using .loc:")
+print(selected_data)
+
+#Conditional access
+selected_data = df[df['Column_name'] > 10]['Another_column']
+print("\nConditional access:")
+print(selected_data)
+
+#display the first 2 rows
+print("First 2 rows: ")
+print(df.head(2))
+
+#display the last row
+print("\nLast row:")
+print(df.tail(1))
+
+#provide a comprehensive summary of the DataFrame
+print("\nDataFrame summary:")
+df.info()
+df.describe()
+
+#print("\n DataFrame dimension
+print(df.shape)
+
+
+#calculate mean,median, and standard deviation
+mean_value = df.mean()
+print("\nMean of column values:")
+print(mean_value)
+
+median_value = df.median()
+print("\nMedian of column values:")
+print(median_value)
+
+std_deviation = df.std()
+print("\nStandard Deviation of column values:")
+print(std_deviation)
+
+
+#17 Nov 2025
+#Generate a data range
+date_range = pd.date_range(start='2026-01-01', end='2026-01-10', freq='D')
+print(date_range)
+
+# Assuming 'df' is your DataFrame with a 'Date' column
+data = {'Date': ['2016-01-01', '2026-02-10', '2026-03-20'],}
+df = pd.DataFrame(data)
+df['Date'] = pd.to_datetime(df['Date'])
+
+#Extracting day, month, and year information
+df['Day'] = df['Date'].dt.day
+df['Month'] = df['Date'].dt.month
+df['Year'] = df['Date'].dt.year
+
+#Displaying the DataFrame  with extracted information
+print(df[['Date', 'Day', 'Month', 'Year']])
+
+#Extracting weekdays and weekend information
+df = pd.DataFrame({'Date': pd.date_range(start='2026-01-01', periods=5)})
+df['Weekday'] = df['Date'].dt.weekday
+df['IsWeekend'] = df['Date'].dt.weekday // 5 == 1
+print(df[['Date', 'Weekday', 'IsWeekend']])
+
+#Shifting dates forward or backword
+df['Date'] = pd.to_datetime(df['Date'])
+df['PreviousDate'] = df['Date'] - pd.Timedelta(days=1)
+df['NextDate'] = df['Date'] + pd.Timedelta(days=1)
+print(df[['Date', 'PreviousDate', 'NextDate']])
+
+#no output
+data = {
+    'Date': pd.date_range(start='2026-01-01', periods=10, freq ='h'),
+    #generating 10 timestamps starting from 2026-01-01 00:00:00
+    #second time stamp 2026-01-01 01:00:00
+
+    'Value1': range(10),
+    'Value2': range(10,20)
+}
+df = pd.DataFrame(data)
+
+#Creating a timedelta of 3 days
+delta = pd.Timedelta(days=3)
+
+#Performing airthmetic operations with timedeltas
+df['Date'] = pd.to_datetime(df['Date'])
+df['FutureDate'] = df['Date'] + pd.Timedelta(weeks=2, days=3, hours=12)
+print(df[['Date', 'FutureDate']])
